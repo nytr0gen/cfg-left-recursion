@@ -1,0 +1,7 @@
+S
+S -> SX
+S -> SSb
+S -> XS
+S -> a
+X -> t
+X -> Xb
