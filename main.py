@@ -28,6 +28,8 @@ for w in ['ETF']:
     print('multimile first_k(%s): ' % w, end='')
     print(g.compute_first_k(k, w))
 
-for w in g._non_terminals:
-    print('multimile follow_k(%s): ' % w, end='')
-    print(g.compute_follow_k(k, w))
+
+g.compute_follow_k(k)
+for l in g._non_terminals:
+    print('multimile follow_k(%s): ' % l, end='')
+    print(g.follow_sets[l])

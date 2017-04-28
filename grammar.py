@@ -128,13 +128,13 @@ class Grammar:
             print('%s -> %s' % (l, ' | '.join(r)))
 
     def compute_first_k(self, k, word):
+        res = set()
         if len(word) == 0:
-            return []
+            return set()
         elif k == 0:
-            return []
+            return set()
 
         l = word[0]
-        res = []
         if self._is_non_terminal(l):
             for r in self.productions[l]:
                 if r == self.EPSILON:
@@ -142,27 +142,36 @@ class Grammar:
                 else:
                     t = r + word[1:]
 
-                res += self.compute_first_k(k, t)
+                res |= self.compute_first_k(k, t)
         else:
-            res = [
+            res = set(
                 l + x
                 for x in self.compute_first_k(k-1, word[1:])
-            ]
+            )
             if len(res) == 0:
-                res.append(l)
+                res.add(l)
 
         return res
 
-    def compute_follow_k(self, k, w):
-        res = []
-        # todo: check this out
+    follow_sets = {}
+    def _compute_follow_k(self, k, w):
+        self.follow_sets[w] = self.follow_sets.get(w, set())
         for l in self._non_terminals:
             for r in self.productions[l]:
-                if r.find(w) == -1: continue
+                idx = r.find(w)
+                if idx == -1: continue
 
-                idx = r.find(w) + 1
-                res += self.compute_first_k(k, r[idx:])
+                rs = r[idx + 1:]  # production sliced after nonterminal
+                for f in self.follow_sets.get(l, []):
+                    self.follow_sets[w] |= self.compute_first_k(k, rs + f)
 
-        return res
+        return self.follow_sets[w]
 
+    def compute_follow_k(self, k):
+        self.follow_sets = {
+            self.start: set('$')
+        }
+        for _ in range(10):  # hack so i dont have to check if the sets have changed
+            for w in self._non_terminals:
+                self._compute_follow_k(k, w)
 
