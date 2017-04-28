@@ -162,7 +162,7 @@ class Grammar:
                 if idx == -1: continue
 
                 rs = r[idx + 1:]  # production sliced after nonterminal
-                for f in self.follow_sets.get(l, []):
+                for f in set(self.follow_sets.get(l, [])):  # copy of set
                     self.follow_sets[w] |= self.compute_first_k(k, rs + f)
 
         return self.follow_sets[w]
